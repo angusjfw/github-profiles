@@ -1,49 +1,57 @@
 describe('GitUserSearchController', function() {
-  var ctrl;
-  var items = [
-  {
-    "login": "tansaku",
-    "avatar_url": "https://avatars.githubusercontent.com/u/30216?v=3",
-    "html_url": "https://github.com/tansaku"
-  }, 
-  {
-    "login": "stephenlloyd",
-    "avatar_url": "https://avatars.githubusercontent.com/u/196474?v=3",
-    "html_url": "https://github.com/stephenlloyd"
-  }
-  ];
-
   beforeEach(module('GitUserSearch'));
+  var ctrl;
 
   beforeEach(inject(function($controller) {
     ctrl = $controller('GitUserSearchController');
   }));
 
-  it('initialises with an empty search result and term', function() {
+  it('intialises with an empty search result and term', function() {
     expect(ctrl.searchResult).toBeUndefined();
     expect(ctrl.searchTerm).toBeUndefined();
   });
+});
 
-  describe('when searching for a user', function() {
-
-    beforeEach(inject(function($httpBackend) {
-      httpBackend = $httpBackend;
-      httpBackend
-        .when("GET", "https://api.github.com/search/users?access_token=" +
-            github_access_token + "&q=hello")
-        .respond({ items: items });
-    }));
-
-    afterEach(function() {
-      httpBackend.verifyNoOutstandingExpectation();
-      httpBackend.verifyNoOutstandingRequest();
+describe('when searching for a user', function() {
+  beforeEach(module('GitUserSearch'));
+  var httpBackend;
+  var ctrl;
+  var fakeSearch;
+  var scope;
+  beforeEach(function(){
+    module(function ($provide) {
+     fakeSearch = jasmine.createSpyObj('fakeSearch', ['query']);
+      $provide.factory('Search', function(){
+        return fakeSearch;
+      });
     });
+  });
 
-    it('gets search results', function() {
-      ctrl.searchTerm = 'hello';
-      ctrl.doSearch();
-      httpBackend.flush();
-      expect(ctrl.searchResult.items).toEqual(items);
-    });
+  beforeEach(inject(function ($q, $rootScope) {
+    scope = $rootScope;
+    fakeSearch.query.and.returnValue($q.when(fakeData));
+  }));
+
+  beforeEach(inject(function($controller) {
+    ctrl = $controller('GitUserSearchController');
+  }));
+  var fakeData = {
+    data : {
+      items: [
+      {
+        "login": "tansaku",
+        "avatar_url": "https://avatars.githubusercontent.com/u/30216?v=3",
+        "url": "https://github.com/tansaku"
+      }
+      ]
+    }
+  };
+
+  it('displays search results', function() {
+    ctrl.searchTerm = 'hello';
+    ctrl.doSearch();
+    scope.$apply();
+    console.log(ctrl.searchResult);
+    expect(ctrl.searchResult.items).toEqual(fakeData.data.items);
   });
 });
