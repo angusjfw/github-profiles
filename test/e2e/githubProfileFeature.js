@@ -6,7 +6,7 @@ describe('GitUserProfiles', function() {
     browser.get('http://localhost:8080');
   });
 
-  it('has a title', function() {
+  it('has a title tag', function() {
     expect(browser.getTitle()).toEqual('Github user search');
   });
 
@@ -14,10 +14,11 @@ describe('GitUserProfiles', function() {
     expect(element(by.className('page-header')).getText()).toEqual('GitHub Profiles');
   });
 
-  it('finds profiles', function() {
-    searchBox.sendKeys('angusjfw');
+  it('finds profiles with most relevant first', function() {
+    searchBox.sendKeys('Adzz');
     searchButton.click();
 
-    expect(element(by.binding('user.login')).getText()).toEqual('angusjfw');
+    var profiles = element.all(by.repeater('user in searchCtrl.searchResult.items'));
+    expect(profiles.get(0).getText()).toEqual('Adzz');
   });
 });
