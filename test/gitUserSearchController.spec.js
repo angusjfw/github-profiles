@@ -48,8 +48,14 @@ describe('GitUserSearchController', function() {
       ctrl.searchTerm = 'hello';
       ctrl.doSearch();
       scope.$apply();
-      console.log(ctrl.searchResult);
       expect(ctrl.searchResult.items).toEqual(fakeData.data.items);
+    });
+    
+    it('results are empty when searchTerm empty', function() {
+      ctrl.searchTerm = '';
+      ctrl.doSearch();
+      scope.$apply();
+      expect(ctrl.searchResult.items).toEqual({});
     });
   });
 });
